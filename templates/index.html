@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Voting</title>
+    <script>
+        async function registerVoter() {
+            const voterId = document.getElementById("voter_id").value;
+            const secret = Math.floor(Math.random() * 1000000); // Simulated secret key
+    
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ voter_id: voterId, secret: secret })
+            });
+    
+            const data = await response.json();
+            alert(data.message);
+    
+            // Save secret locally (⚠️ Not secure, should be managed properly in production)
+            localStorage.setItem("zkp_secret_" + voterId, secret);
+        }
+    
+        async function castVote() {
+    const voterId = document.getElementById("vote_voter_id").value;
+    const voteChoice = document.getElementById("vote_choice").value;
+    const secret = parseInt(localStorage.getItem("zkp_secret_" + voterId));
+
+    if (!voterId || !voteChoice || isNaN(secret)) {
+        alert("Please enter a voter ID, select a candidate, and ensure you are registered.");
+        return;
+    }
+
+    const challenge = Math.floor(Math.random() * 1000000);
+    const r = Math.floor(Math.random() * 1000000);  // Random number
+
+    console.log(`🔹 [ZKP Frontend] Voter ID: ${voterId}`);
+    console.log(`🔹 [ZKP Frontend] Secret: ${secret}`);
+    console.log(`🔹 [ZKP Frontend] Challenge: ${challenge}`);
+    console.log(`🔹 [ZKP Frontend] Random r: ${r}`);
+
+    try {
+        const response = await fetch('/vote', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                voter_id: voterId,
+                vote: voteChoice,
+                r: r,  // Send only r, let backend compute commitment
+                challenge: challenge,
+                response: r + (challenge * secret)
+            })
+        });
+
+        const data = await response.json();
+        alert(data.message || data.error);
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Failed to submit vote. Please try again.");
+    }
+}
+
+    </script>
+    
+</head>
+<body>
+    <h1>Blockchain Voting System</h1>
+
+    <h2>Register Voter</h2>
+    <input type="text" id="voter_id" placeholder="Enter Voter ID">
+    <button onclick="registerVoter()">Register</button>
+
+    <h2>Vote</h2>
+    <input type="text" id="vote_voter_id" placeholder="Enter Voter ID">
+    <select id="vote_choice">
+        <option value="Candidate A">Candidate A</option>
+        <option value="Candidate B">Candidate B</option>
+    </select>
+    <button onclick="castVote()">Vote</button>
+
+    <h2>View Results</h2>
+    <button onclick="window.location.href='/results'">Check Results</button>
+    <div id="results"></div>
+    
+    <script>
+        async function fetchResults() {
+            try {
+                const response = await fetch('/results');
+                const data = await response.json();
+    
+                let resultHtml = `<h3>Election Results</h3>`;
+                resultHtml += `<p><strong>Winner:</strong> ${data.winner}</p>`;
+                resultHtml += `<h4>Vote Count:</h4><ul>`;
+    
+                for (const [candidate, count] of Object.entries(data.vote_count)) {
+                    resultHtml += `<li>${candidate}: ${count} votes</li>`;
+                }
+    
+                resultHtml += `</ul>`;
+                document.getElementById("results").innerHTML = resultHtml;
+            } catch (error) {
+                console.error("Error fetching results:", error);
+                alert("Failed to fetch results.");
+            }
+        }
+    </script>
+    
+
+</body>
+</html>

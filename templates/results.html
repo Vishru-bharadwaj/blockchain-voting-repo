@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voting Results</title>
+    <script>
+        async function fetchResults() {
+            const response = await fetch('/results');
+            const data = await response.json();
+
+            let resultsContainer = document.getElementById("results");
+            resultsContainer.innerHTML = "<h2>Blockchain Votes</h2>";
+
+            data.blockchain.forEach(block => {
+                resultsContainer.innerHTML += `
+                    <p><strong>Block ${block.index}</strong></p>
+                    <p>Votes: ${JSON.stringify(block.votes)}</p>
+                    <p>Merkle Root: ${block.merkle_root}</p>
+                    <p>Block Hash: ${block.hash}</p>
+                    <hr>
+                `;
+            });
+        }
+    </script>
+</head>
+<body onload="fetchResults()">
+    <h1>Voting Results</h1>
+    <div id="results">Loading...</div>
+</body>
+</html>
