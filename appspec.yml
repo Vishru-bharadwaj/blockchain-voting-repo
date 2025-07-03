@@ -3,12 +3,14 @@ os: linux
 files:
   - source: /
     destination: /home/ec2-user/blockchain-voting-app
+
 hooks:
-  ApplicationStart:
-    - location: scripts/start_container.sh
-      timeout: 300
-      runas: ec2-user
   ApplicationStop:
     - location: scripts/stop_container.sh
+      timeout: 60
+      runas: ec2-user
+
+  AfterInstall:
+    - location: scripts/start_container.sh
       timeout: 300
       runas: ec2-user

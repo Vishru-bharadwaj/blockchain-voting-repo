@@ -1,3 +1,4 @@
 #!/bin/bash
-docker stop blockchain-voting-app || true
-docker rm blockchain-voting-app || true
+
+echo "Stopping blockchain voting container if running..."
+docker stop blockchain-voting-container || true

@@ -4,8 +4,8 @@ phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/blockchain-voting-repo
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 084828587056.dkr.ecr.us-east-1.amazonaws.com
+      - REPOSITORY_URI=084828587056.dkr.ecr.us-east-1.amazonaws.com/blockchain-voting-repo
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
   build:
     commands:
@@ -21,7 +21,8 @@ phases:
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - echo Writing image definitions file...
       - printf '[{"name":"blockchain-voting-container","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+
 artifacts:
-    files:
-        - imagedefinitions.json
-        - appspec.yml # Include appspec.yml for CodeDeploy
+  files:
+    - imagedefinitions.json
+    - appspec.yml  # Include this if you're using CodeDeploy
