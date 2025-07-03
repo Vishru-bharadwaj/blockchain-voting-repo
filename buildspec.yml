@@ -9,9 +9,9 @@ phases:
 
   pre_build:
     commands:
-      - echo "=== DEBUG: Where am I? ==="
+      - echo "[DEBUG] Where am I?"
       - pwd
-      - echo "=== DEBUG: What files are here? ==="
+      - echo "[DEBUG] What files are here?"
       - ls -la
       - echo "[PRE_BUILD] Logging in to Amazon ECR..."
       - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 084828587056.dkr.ecr.us-east-1.amazonaws.com
@@ -40,4 +40,4 @@ artifacts:
   files:
     - imagedefinitions.json
     - appspec.yml
-    - scripts/*  # Include if CodeDeploy hooks use scripts
+    - scripts/*
