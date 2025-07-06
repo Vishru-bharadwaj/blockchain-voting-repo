@@ -23,19 +23,22 @@ phases:
       - ls -la
       - echo "[BUILD] Building the Docker image..."
       - docker build -t $REPOSITORY_URI:latest -f Dockerfile .
-      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
 
   post_build:
     commands:
       - echo "[POST_BUILD] Build completed on $(date)"
       - echo "[POST_BUILD] Pushing Docker images to ECR..."
       - docker push $REPOSITORY_URI:latest
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
       - echo "[POST_BUILD] Writing imagedefinitions.json..."
-      - printf '[{"name":"blockchain-voting-container","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      - printf '[{"name":"blockchain-voting-container","imageUri":"%s"}]' $REPOSITORY_URI:$latest > imagedefinitions.json
 
 artifacts:
   files:
     - imagedefinitions.json
     - appspec.yml
     - scripts/*
+    - Dockerfile
+    - requirements.txt
+    - app.py
+    - templates/*
+
